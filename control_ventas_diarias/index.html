@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Ventas Diarias</title>
+</head>
+<body>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th colspan="4">Control de Ventas Diarias</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>Cantidad de días</td>
+                <td>
+                    <input type="number" id="txt-cantidad-dias"
+                        placeholder="Ingrese cantidad">
+                </td>
+                <td>Período a analizar</td>
+                <td>
+                    <button type="button" id="btn-aceptar-dias">
+                        Aceptar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Venta del día</td>
+                <td>
+                    <input type="number" id="txt-venta"
+                        placeholder="Ingrese venta">
+                </td>
+                <td>Registrar ventas</td>
+                <td>
+                    <button type="button" id="btn-agregar-venta">
+                        Agregar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Listado de ventas</td>
+                <td>
+                    <textarea id="txt-listado-ventas"
+                            rows="8" readonly
+                            placeholder="Ventas registradas"></textarea>
+                </td>
+                <td>
+                    <button type="button" id="btn-presentar-ventas">
+                        Presentar
+                    </button>
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td>Total vendido</td>
+                <td>
+                    <input type="text" id="txt-total"
+                        placeholder="0.00" readonly>
+                </td>
+                <td>Promedio diario</td>
+                <td>
+                    <input type="text" id="txt-promedio"
+                        placeholder="0.00" readonly>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Día con venta más alta</td>
+                <td>
+                    <input type="text" id="txt-dia-mayor"
+                        placeholder="Día" readonly>
+                </td>
+                <td>Venta más alta</td>
+                <td>
+                    <input type="text" id="txt-venta-mayor"
+                        placeholder="0.00" readonly>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Días con ventas mayores a $100</td>
+                <td>
+                    <input type="text" id="txt-mayores-100"
+                        placeholder="0" readonly>
+                </td>
+                <td>Días debajo del promedio</td>
+                <td>
+                    <input type="text" id="txt-debajo-promedio"
+                        placeholder="0" readonly>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Meta de $500</td>
+                <td colspan="3">
+                    <input type="text" id="txt-meta"
+                        placeholder="Resultado de la meta" readonly>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4" align="center">
+                    <button type="button" id="btn-calcular">
+                        Calcular resultados
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+<script>
+    const txtCantidadDias = document.getElementById('txt-cantidad-dias');
+    const btnAceptarDias = document.getElementById('btn-aceptar-dias');
+
+    const txtVenta = document.getElementById('txt-venta');
+    const btnAgregarVenta = document.getElementById('btn-agregar-venta');
+
+    const txtListadoVentas = document.getElementById('txt-listado-ventas');
+    const btnPresentarVentas = document.getElementById('btn-presentar-ventas');
+
+    const txtTotal = document.getElementById('txt-total');
+    const txtPromedio = document.getElementById('txt-promedio');
+
+    const txtDiaMayor = document.getElementById('txt-dia-mayor');
+    const txtVentaMayor = document.getElementById('txt-venta-mayor');
+
+    const txtMayores100 = document.getElementById('txt-mayores-100');
+    const txtDebajoPromedio = document.getElementById('txt-debajo-promedio');
+
+    const txtMeta = document.getElementById('txt-meta');
+    const btnCalcular = document.getElementById('btn-calcular');
+
+    const META = 500;
+    const LIMITE_VENTA = 100;
+
+    let ventas = [];
+    let cantidadDias = 0;
+
+    // Registrar la cantidad de días
+    btnAceptarDias.addEventListener('click', function(e) {
+        const cantidad = Number(txtCantidadDias.value);
+
+        if (txtCantidadDias.value === '' ||
+            !Number.isInteger(cantidad) || cantidad <= 0) {
+            alert('Ingrese una cantidad de días válida');
+            return;
+        }
+
+        cantidadDias = cantidad;
+        ventas = [];
+
+        txtVenta.value = '';
+        txtListadoVentas.value = '';
+        txtTotal.value = '';
+        txtPromedio.value = '';
+        txtDiaMayor.value = '';
+        txtVentaMayor.value = '';
+        txtMayores100.value = '';
+        txtDebajoPromedio.value = '';
+        txtMeta.value = '';
+
+        alert('Se registrarán ' + cantidadDias + ' días');
+    });
+
+    // Agregar una venta al vector
+    btnAgregarVenta.addEventListener('click', function(e) {
+        if (cantidadDias === 0) {
+            alert('Primero ingrese la cantidad de días');
+            return;
+        }
+
+        if (ventas.length >= cantidadDias) {
+            alert('Ya se registraron todas las ventas');
+            return;
+        }
+
+        if (txtVenta.value === '') {
+            alert('Ingrese el valor de la venta');
+            return;
+        }
+
+        const venta = Number(txtVenta.value);
+
+        if (!Number.isFinite(venta) || venta < 0) {
+            alert('La venta debe ser un número no negativo');
+            return;
+        }
+
+        ventas[ventas.length] = venta;
+
+        txtVenta.value = '';
+
+        alert('Venta del día ' + ventas.length + ' registrada');
+        console.log('Ventas: ', ventas);
+    });
+
+    // Presentar las ventas registradas
+    btnPresentarVentas.addEventListener('click', function(e) {
+        txtListadoVentas.value = '';
+
+        for (let i = 0; i < ventas.length; i++) {
+            txtListadoVentas.value +=
+                'Día ' + (i + 1) + ': $' +
+                ventas[i].toFixed(2) + '\n';
+        }
+    });
+
+    // Calcular todos los resultados
+    btnCalcular.addEventListener('click', function(e) {
+        if (cantidadDias === 0 || ventas.length === 0) {
+            alert('Primero registre las ventas');
+            return;
+        }
+
+        if (ventas.length < cantidadDias) {
+            alert('Faltan registrar ' +
+                (cantidadDias - ventas.length) + ' ventas');
+            return;
+        }
+
+        calcularResultados();
+    });
+
+    function calcularResultados() {
+        let total = 0;
+        let ventaMayor = ventas[0];
+        let diaMayor = 1;
+        let mayores100 = 0;
+        let debajoPromedio = 0;
+
+        // Calcular el total y buscar la venta más alta
+        for (let i = 0; i < ventas.length; i++) {
+            total = total + ventas[i];
+
+            if (ventas[i] > ventaMayor) {
+                ventaMayor = ventas[i];
+                diaMayor = i + 1;
+            }
+
+            if (ventas[i] > LIMITE_VENTA) {
+                mayores100++;
+            }
+        }
+
+        const promedio = total / ventas.length;
+
+        // Contar los días con ventas inferiores al promedio
+        for (let i = 0; i < ventas.length; i++) {
+            if (ventas[i] < promedio) {
+                debajoPromedio++;
+            }
+        }
+
+        // Mostrar los resultados
+        txtTotal.value = total.toFixed(2);
+        txtPromedio.value = promedio.toFixed(2);
+        txtDiaMayor.value = 'Día ' + diaMayor;
+        txtVentaMayor.value = ventaMayor.toFixed(2);
+        txtMayores100.value = mayores100;
+        txtDebajoPromedio.value = debajoPromedio;
+
+        if (total >= META) {
+            txtMeta.value = 'Meta alcanzada';
+        } else {
+            txtMeta.value = 'Meta no alcanzada';
+        }
+    }
+</script>
+
+</body>
+</html>
